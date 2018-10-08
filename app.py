@@ -35,9 +35,9 @@ def addr2bytes(addr, nat_type_id):
 
 
 def main():
-    port = 7000
+    port = sys.argv[1]
     try:
-        port = 7000
+        port = int(sys.argv[1])
     except (IndexError, ValueError):
         pass
 
@@ -98,4 +98,9 @@ def main():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("usage: server.py port")
+        exit(0)
+    else:
+        assert sys.argv[1].isdigit(), "port should be a number!"
         main()
