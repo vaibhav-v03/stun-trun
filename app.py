@@ -80,6 +80,7 @@ def main():
                 sockfd.sendto(addr2bytes(b, nat_type_id_b), a)
                 print "linked", pool
                 del poolqueue[pool]
+            # KeyError ==> pool not exist yet, initiate one
             except KeyError:
                 poolqueue[pool] = ClientInfo(addr, nat_type_id)
 

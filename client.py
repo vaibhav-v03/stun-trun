@@ -33,8 +33,7 @@ def bytes2addr(bytes):
 class Client():
     def __init__(self):
         try:
-            master_ip = '127.0.0.1' if sys.argv[
-                1] == 'localhost' else sys.argv[1]
+            master_ip = '127.0.0.1' if sys.argv[1] == 'localhost' else sys.argv[1]
             self.master = (master_ip, int(sys.argv[2]))
             self.pool = sys.argv[3].strip()
             self.sockfd = self.target = None
