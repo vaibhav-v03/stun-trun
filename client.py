@@ -62,14 +62,14 @@ class Client():
         print(sys.stderr, "connected to {1}:{2}, its NAT type is {0}".format(
             self.peer_nat_type, *self.target))
 
-    def recv_msg(self, sock, is_restrict=False, event=None):
+    def recv_msg(self, sock, is_restrict=False, event_r=None):
         if is_restrict:
             while True:
                 data, addr = sock.recvfrom(1024)
                 if self.periodic_running:
                     print("periodic_send is alive")
                     self.periodic_running = False
-                    event.set()
+                    event_r.set()
                     print("received msg from target,"
                           "periodic send cancelled, chat start.")
                 if addr == self.target or addr == self.master:
@@ -86,13 +86,12 @@ class Client():
 
     def send_msg(self, sock):
         while True:
-            sock.sendto("hello", self.target)
             data = sys.stdin.readline()
             sock.sendto(data, self.target)
 
     @staticmethod
     def start_working_threads(send, recv, event=None, *args, **kwargs):
-        ts = Thread(target=send, args=args, kwargs=kwargs)
+        ts = Thread(target=send, args=args)
         ts.setDaemon(True)
         ts.start()
         if event:
@@ -113,12 +112,12 @@ class Client():
             self.sockfd.sendto('punching...\n', self.target)
             print("UDP punching package {0} sent".format(count))
             if self.periodic_running:
-                Timer(0.5, send, args=(count + 1, )).start()
+                Timer(0.5, send, args=(count + 1,)).start()
 
         self.periodic_running = True
         send(0)
-        kwargs = {'is_restrict': True, 'event': cancel_event}
-        self.start_working_threads(self.send_msg, self.recv_msg, cancel_event,
+        kwargs = {'is_restrict': True, 'event_r': cancel_event}
+        self.start_working_threads(self.send_msg, self.recv_msg, None,
                                    self.sockfd, **kwargs)
 
     def chat_symmetric(self):
