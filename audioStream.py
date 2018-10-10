@@ -5,6 +5,7 @@
 import pyaudio
 import struct
 import math
+import sys
 
 INITIAL_TAP_THRESHOLD = 0.010
 FORMAT = pyaudio.paInt16
@@ -20,7 +21,8 @@ UNDERSENSITIVE = 120.0/INPUT_BLOCK_TIME
 # if the noise was longer than this many blocks, it's not a 'tap'
 MAX_TAP_BLOCKS = 0.15/INPUT_BLOCK_TIME
 
-def get_rms( block ):
+
+def get_rms(block):
     # RMS amplitude is defined as the square root of the
     # mean over time of the square of the amplitude.
     # so we need to convert this string of bytes into
@@ -29,7 +31,7 @@ def get_rms( block ):
     # we will get one short out for each
     # two chars in the string.
     count = len(block)/2
-    format = "%dh"%(count)
+    format = "%dh" % (count)
     shorts = struct.unpack( format, block )
 
     # iterate over the block.
@@ -40,7 +42,7 @@ def get_rms( block ):
         n = sample * SHORT_NORMALIZE
         sum_squares += n*n
 
-    return math.sqrt( sum_squares / count )
+    return math.sqrt(sum_squares / count)
 
 
 class TapTester(object):
@@ -57,30 +59,30 @@ class TapTester(object):
 
     def find_input_device(self):
         device_index = None
-        for i in range( self.pa.get_device_count() ):
+        for i in range(self.pa.get_device_count()):
             devinfo = self.pa.get_device_info_by_index(i)
-            print( "Device %d: %s"%(i,devinfo["name"]) )
+            print("Device %d: %s"%(i,devinfo["name"]))
 
             for keyword in ["mic","input"]:
                 if keyword in devinfo["name"].lower():
-                    print( "Found an input: device %d - %s"%        (i,devinfo["name"]) )
+                    print("Found an input: device %d - %s"%(i, devinfo["name"]))
                     device_index = i
                     return device_index
 
-        if device_index == None:
-            print( "No preferred input found; using default input device." )
+        if device_index is None:
+            print("No preferred input found; using default input device.")
 
         return device_index
 
-    def open_mic_stream( self ):
+    def open_mic_stream(self):
         device_index = self.find_input_device()
 
-        stream = self.pa.open(   format = FORMAT,
-                                 channels = CHANNELS,
-                                 rate = RATE,
-                                 input = True,
-                                 input_device_index = device_index,
-                                 frames_per_buffer = INPUT_FRAMES_PER_BLOCK)
+        stream = self.pa.open(   format=FORMAT,
+                                 channels=CHANNELS,
+                                 rate=RATE,
+                                 input=True,
+                                 input_device_index=device_index,
+                                 frames_per_buffer=INPUT_FRAMES_PER_BLOCK)
         return stream
 
     def tapDetected(self):
@@ -92,11 +94,11 @@ class TapTester(object):
         except IOError, e:
             # dammit.
             self.errorcount += 1
-            print( "(%d) Error recording: %s"%(self.errorcount,e) )
+            print("(%d) Error recording: %s"%(self.errorcount, e))
             self.noisycount = 1
             return
 
-        amplitude = get_rms( block )
+        amplitude = get_rms(block)
         if amplitude > self.tap_threshold:
             # noisy block
             self.quietcount = 0

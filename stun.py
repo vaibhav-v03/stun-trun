@@ -12,8 +12,9 @@ log = logging.getLogger("pystun")
 
 
 def enable_logging():
-    logging.basicConfig()
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
     log.setLevel(logging.DEBUG)
+
 
 stun_servers_list = (
     "stun.ekiga.net",
@@ -256,6 +257,7 @@ def get_ip_info(source_ip="0.0.0.0", source_port=54320, stun_host=None,
 
 
 def main():
+    enable_logging()
     nat_type, external_ip, external_port = get_ip_info()
     print "NAT Type:", nat_type
     print "External IP:", external_ip

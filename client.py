@@ -78,7 +78,7 @@ class Client():
                         sock.sendto("end punching\n", addr)
         else:
             while True:
-                data, addr = sock.recvfrom(1024)
+                data, addr = sock.recvfrom(1024)  # received peer's ip + port from server
                 if addr == self.target or addr == self.master:
                     sys.stdout.write(data)
                     if data == "punching...\n":  # peer是restrict
@@ -86,6 +86,7 @@ class Client():
 
     def send_msg(self, sock):
         while True:
+            sock.sendto("hello", self.target)
             data = sys.stdin.readline()
             sock.sendto(data, self.target)
 
