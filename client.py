@@ -23,8 +23,7 @@ def bytes2addr(bytes):
     if len(bytes) != 8:
         raise ValueError("invalid bytes")
     host = socket.inet_ntoa(bytes[:4])
-    port = struct.unpack("H", bytes[-4:-2])[
-        0]  # unpack returns a tuple even if it contains exactly one item
+    port = struct.unpack("H", bytes[-4:-2])[0]  # unpack returns a tuple even if it contains exactly one item
     nat_type_id = struct.unpack("H", bytes[-2:])[0]
     target = (host, port)
     return target, nat_type_id
