@@ -6,6 +6,8 @@ import socket
 import struct
 import sys
 import time
+import pyaudio
+import audioop
 from threading import Event, Thread
 
 import stun
@@ -123,6 +125,11 @@ class Client():
         """
         Completely rely on relay server(TURN)
         """
+        p = pyaudio.PyAudio()
+        stream = p.open(format=pyaudio.paInt16,
+                        channels=1,
+                        rate=8000,
+                        output=True)
 
         def send_msg_symm(sock):
             while True:
@@ -130,25 +137,29 @@ class Client():
                 sock.sendto(data, self.master)
 
         def recv_msg_symm(sock):
+
             while True:
                 data, addr = sock.recvfrom(1024)
                 if addr == self.master:
-                    sys.stdout.write(data)
+                    # sys.stdout.write(data)
+                    data = audioop.ulaw2lin(data, 2)
+                    stream.write(data)
 
         self.start_working_threads(send_msg_symm, recv_msg_symm, None,
                                    self.sockfd)
 
     def main(self, test_nat_type=None):
         """
-        nat_type是自己的nat类型
-        peer_nat_type是从服务器获取的对方的nat类型
-        选择哪种chat模式是根据nat_type来选择, 例如我这边的NAT设备是restrict, 那么我必须得一直向对方发包,
-        我的NAT设备才能识别对方为"我已经发过包的地址". 直到收到对方的包, periodic发送停止
+        nat_type is the nat type of self
+        peer_nat_type the peer's nat type obtained from the server
+        the chat mode is depend on the nat type: e.g. self's NAT type is restrict, then I have to keep sending packets
+        to peer, so that my NAT device can recognize peer's address as 'address I sent packets'. Until I get back from
+        peer, the period sending will be terminated
         """
         if not test_nat_type:
             nat_type, _, _ = self.get_nat_type()
         else:
-            nat_type = test_nat_type  # 假装正在测试某种类型的NAT
+            nat_type = test_nat_type  # NAT type from the argv, then just use it rather than request the nat type
         try:
             self.request_for_connection(nat_type_id=NATTYPE.index(nat_type))
         except ValueError:
@@ -233,7 +244,7 @@ class Client():
 if __name__ == "__main__":
     c = Client()
     try:
-        test_nat_type = NATTYPE[int(sys.argv[4])]  # 输入数字0,1,2,3
+        test_nat_type = NATTYPE[int(sys.argv[4])]  # input the number 0,1,2,3
     except IndexError:
         test_nat_type = None
 
