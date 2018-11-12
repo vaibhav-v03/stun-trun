@@ -63,6 +63,7 @@ def main():
             except KeyError:
                 print("something is wrong with symmetric_chat_clients!")
         elif data.startswith("del "):
+            sockfd.sendto("cancel!!", addr)
             pool = data[4:]
             if pool in poolqueue:
                 del poolqueue[pool]
