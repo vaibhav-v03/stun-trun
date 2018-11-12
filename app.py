@@ -62,6 +62,15 @@ def main():
                 print(data[4:])
             except KeyError:
                 print("something is wrong with symmetric_chat_clients!")
+        elif data.startswith("del "):
+            pool = data[4:]
+            if pool in poolqueue:
+                del poolqueue[pool]
+            if pool in symmetric_chat_clients:
+                del symmetric_chat_clients[pool]
+            print "Connection request canceled"
+            print "Continue listening on *:%d (udp)" % port
+
         else:
             # help build connection between clients, act as STUN server
             print "connection from %s:%d" % addr
