@@ -126,14 +126,23 @@ class Client():
         Completely rely on relay server(TURN)
         """
         p = pyaudio.PyAudio()
-        stream = p.open(format=pyaudio.paInt16,
+        in_stream = p.open(format=pyaudio.paInt16,
                         channels=1,
-                        rate=8000,
+                        rate=16000,
                         output=True)
+
+        CHUNK = 512
+        out_stream = p.open(format=pyaudio.paInt8,
+                        channels=1,
+                        rate=16000,
+                        input=True,
+                        frames_per_buffer=CHUNK)
 
         def send_msg_symm(sock):
             while True:
-                data = 'msg ' + sys.stdin.readline()
+                # data = 'msg ' + sys.stdin.readline()
+                data = 'msg '
+                data += audioop.lin2ulaw(out_stream.read(CHUNK), 1)
                 sock.sendto(data, self.master)
 
         def recv_msg_symm(sock):
@@ -143,7 +152,7 @@ class Client():
                 if addr == self.master:
                     # sys.stdout.write(data)
                     data = audioop.ulaw2lin(data, 2)
-                    stream.write(data)
+                    in_stream.write(data)
 
         self.start_working_threads(send_msg_symm, recv_msg_symm, None,
                                    self.sockfd)
