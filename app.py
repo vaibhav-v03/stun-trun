@@ -72,8 +72,8 @@ def main():
                 print("Cancel request before connecting")
                 del symmetric_chat_clients[pool]
             if addr in symmetric_chat_clients:
-                print("Cancel request after connecting to " + addr[0])
                 recorded_client_addr = symmetric_chat_clients[addr]
+                print("Cancel request after connecting to " + recorded_client_addr[0])
                 del symmetric_chat_clients[recorded_client_addr]
                 del symmetric_chat_clients[addr]
             sockfd.sendto("cancel!!", addr)
