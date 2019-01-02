@@ -64,7 +64,7 @@ def main():
                 print("something is wrong with symmetric_chat_clients!")
         elif data.startswith("del "):
             print("Communication cancel requested!")
-            sockfd.sendto("cancel!!", addr)
+
             pool = data[4:]
             if pool in poolqueue:
                 del poolqueue[pool]
@@ -76,9 +76,9 @@ def main():
                 recorded_client_addr = symmetric_chat_clients[addr]
                 del symmetric_chat_clients[recorded_client_addr]
                 del symmetric_chat_clients[addr]
+            sockfd.sendto("cancel!!", addr)
             print "Connection request canceled"
             print "Continue listening on *:%d (udp)" % port
-
         else:
             # help build connection between clients, act as STUN server
             print "connection from %s:%d" % addr
