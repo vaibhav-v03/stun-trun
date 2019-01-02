@@ -61,33 +61,33 @@ def main():
                 # print("msg successfully forwarded to {0}".format(symmetric_chat_clients[addr]))
                 # print(data[4:])
             except KeyError:
-		if addr in symmetric_chat_clients:
-		    del symmetric_chat_clients[addr]
+                if addr in symmetric_chat_clients:
+                    del symmetric_chat_clients[addr]
                 print("something is wrong with symmetric_chat_clients!")
         elif data.startswith("del "):
             print("Communication cancel requested!")
-	    sockfd.sendto("cancel!!", addr)
+            sockfd.sendto("cancel!!", addr)
             pool = data[4:]
             if pool in poolqueue:
                 del poolqueue[pool]
             if pool in symmetric_chat_clients:
-		print("Cancel request before connecting")
+                print("Cancel request before connecting")
                 del symmetric_chat_clients[pool]
-	    if addr in symmetric_chat_clients:
-		print("Cancel request after connecting to " + addr[0])
-		recorded_client_addr = symmetric_chat_clients[addr]
-		del symmetric_chat_clients[recorded_client_addr]
-		del symmetric_chat_clients[addr]
+            if addr in symmetric_chat_clients:
+                print("Cancel request after connecting to " + addr[0])
+                recorded_client_addr = symmetric_chat_clients[addr]
+                del symmetric_chat_clients[recorded_client_addr]
+                del symmetric_chat_clients[addr]
             print "Connection request canceled"
             print "Continue listening on *:%d (udp)" % port
 
         else:
             # help build connection between clients, act as STUN server
             print "connection from %s:%d" % addr
-	    try:
-            	pool, nat_type_id = data.strip().split()
-      	    except:
-		continue
+            try:
+                pool, nat_type_id = data.strip().split()
+            except:
+                continue
             sockfd.sendto("ok {0}".format(pool), addr)
             print("pool={0}, nat_type={1}, ok sent to client".format(pool, NATTYPE[int(nat_type_id)]))
             data, addr = sockfd.recvfrom(2)
