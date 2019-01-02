@@ -58,17 +58,26 @@ def main():
             # forward symmetric chat msg, act as TURN server
             try:
                 sockfd.sendto(data[4:], symmetric_chat_clients[addr])
-                print("msg successfully forwarded to {0}".format(symmetric_chat_clients[addr]))
-                print(data[4:])
+                # print("msg successfully forwarded to {0}".format(symmetric_chat_clients[addr]))
+                # print(data[4:])
             except KeyError:
+		if addr in symmetric_chat_clients:
+		    del symmetric_chat_clients[addr]
                 print("something is wrong with symmetric_chat_clients!")
         elif data.startswith("del "):
-            sockfd.sendto("cancel!!", addr)
+            print("Communication cancel requested!")
+	    sockfd.sendto("cancel!!", addr)
             pool = data[4:]
             if pool in poolqueue:
                 del poolqueue[pool]
             if pool in symmetric_chat_clients:
+		print("Cancel request before connecting")
                 del symmetric_chat_clients[pool]
+	    if addr in symmetric_chat_clients:
+		print("Cancel request after connecting to " + addr[0])
+		recorded_client_addr = symmetric_chat_clients[addr]
+		del symmetric_chat_clients[recorded_client_addr]
+		del symmetric_chat_clients[addr]
             print "Connection request canceled"
             print "Continue listening on *:%d (udp)" % port
 
