@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0cbfd920-faca-4689-b487-10e6221e4811" name="Default Changelist" comment="" />
+    <list default="true" id="0cbfd920-faca-4689-b487-10e6221e4811" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,13 +34,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="1729" />
+          <entry key="Python" value="1778" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="1729" />
+          <entry key="py" value="1778" />
         </counts>
       </usages-collector>
     </session>
@@ -48,8 +50,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="117">
-              <caret line="57" column="53" selection-start-line="57" selection-start-column="53" selection-end-line="57" selection-end-column="53" />
+            <state relative-caret-position="171">
+              <caret line="62" column="28" selection-start-line="62" selection-start-column="28" selection-end-line="62" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -90,6 +92,7 @@
       <find>from</find>
       <find>print</find>
       <find>split</find>
+      <find>NATTYPE</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -107,10 +110,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1441" />
-    <option name="y" value="-18" />
-    <option name="width" value="1919" />
-    <option name="height" value="973" />
+    <option name="x" value="1460" />
+    <option name="y" value="-15" />
+    <option name="width" value="1893" />
+    <option name="height" value="969" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -261,10 +264,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1794" y="44" width="1440" height="877" extended-state="0" />
+    <frame x="1440" y="-18" width="1920" height="974" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.093023255" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.069510266" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -331,8 +334,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="117">
-          <caret line="57" column="53" selection-start-line="57" selection-start-column="53" selection-end-line="57" selection-end-column="53" />
+        <state relative-caret-position="171">
+          <caret line="62" column="28" selection-start-line="62" selection-start-column="28" selection-end-line="62" selection-end-column="28" />
         </state>
       </provider>
     </entry>

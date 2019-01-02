@@ -61,8 +61,6 @@ def main():
                 # print("msg successfully forwarded to {0}".format(symmetric_chat_clients[addr]))
                 # print(data[4:])
             except KeyError:
-                if addr in symmetric_chat_clients:
-                    del symmetric_chat_clients[addr]
                 print("something is wrong with symmetric_chat_clients!")
         elif data.startswith("del "):
             print("Communication cancel requested!")
