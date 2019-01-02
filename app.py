@@ -84,7 +84,10 @@ def main():
         else:
             # help build connection between clients, act as STUN server
             print "connection from %s:%d" % addr
-            pool, nat_type_id = data.strip().split()
+	    try:
+            	pool, nat_type_id = data.strip().split()
+      	    except:
+		continue
             sockfd.sendto("ok {0}".format(pool), addr)
             print("pool={0}, nat_type={1}, ok sent to client".format(pool, NATTYPE[int(nat_type_id)]))
             data, addr = sockfd.recvfrom(2)
