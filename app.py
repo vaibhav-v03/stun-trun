@@ -47,10 +47,12 @@ def main():
     print "listening on *:%d (udp)" % port
 
     poolqueue = {}
+
     # A,B with addr_A,addr_B,pool=100
     # temp state {100:(nat_type_id, addr_A, addr_B)}
     # final state {addr_A:addr_B, addr_B:addr_A}
     symmetric_chat_clients = {}
+
     ClientInfo = namedtuple("ClientInfo", "addr, nat_type_id")
     while True:
         data, addr = sockfd.recvfrom(1024)
@@ -74,8 +76,12 @@ def main():
             if addr in symmetric_chat_clients:
                 recorded_client_addr = symmetric_chat_clients[addr]
                 print("Cancel request after connecting to " + recorded_client_addr[0])
-                del symmetric_chat_clients[recorded_client_addr]
-                del symmetric_chat_clients[addr]
+                try:
+                    del symmetric_chat_clients[recorded_client_addr]
+                    del symmetric_chat_clients[addr]
+                except KeyError:
+                    print("Voice call pool is cleaned, key error")
+                    continue
             sockfd.sendto("cancel!!", addr)
             print "Connection request canceled"
             print "Continue listening on *:%d (udp)" % port
