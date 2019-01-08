@@ -96,6 +96,7 @@ def main():
             print("pool={0}, nat_type={1}, ok sent to client".format(pool, NATTYPE[int(nat_type_id)]))
             data, addr = sockfd.recvfrom(2)
             if data != "ok":
+                print("Didn't get ok back from client, actual msg is: " + data)
                 continue
 
             print "request received for pool:", pool
