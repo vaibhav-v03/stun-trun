@@ -74,9 +74,9 @@ def main():
                 print("Cancel request before connecting")
                 del symmetric_chat_clients[pool]
             if addr in symmetric_chat_clients:
-                recorded_client_addr = symmetric_chat_clients[addr]
-                print("Cancel request after connecting to " + recorded_client_addr[0])
                 try:
+                    recorded_client_addr = symmetric_chat_clients[addr]
+                    print("Cancel request after connecting to " + recorded_client_addr[0])
                     del symmetric_chat_clients[recorded_client_addr]
                     del symmetric_chat_clients[addr]
                 except KeyError:
@@ -97,6 +97,15 @@ def main():
             data, addr = sockfd.recvfrom(2)
             if data != "ok":
                 print("Didn't get ok back from client, actual msg is: " + data)
+                print("Cleaning the pool...")
+                if addr in symmetric_chat_clients:
+                    try:
+                        recorded_client_addr = symmetric_chat_clients[addr]
+                        print("Cancel request after connecting to " + recorded_client_addr[0])
+                        del symmetric_chat_clients[recorded_client_addr]
+                        del symmetric_chat_clients[addr]
+                    except KeyError:
+                        print("Voice call pool is cleaned, key error")
                 continue
 
             print "request received for pool:", pool
