@@ -63,7 +63,7 @@ def main():
                 # print("msg successfully forwarded to {0}".format(symmetric_chat_clients[addr]))
                 # print(data[4:])
             except KeyError:
-                sockfd.sendto("LC Stop", addr)
+                sockfd.sendto("LC Stop\0", addr)
                 print("something is wrong with symmetric_chat_clients!")
         elif data.startswith("del "):
             print("Communication cancel requested!")
