@@ -59,6 +59,7 @@ class stun_turn:
                     error_msg_counter += 1
                     if error_msg_counter == 10:
                         turn_forwarding = False
+                        socket_turn.close()
 
     def stun(self, stun_port):
         self.stun_port = stun_port
@@ -136,6 +137,7 @@ class stun_turn:
                             recorded_client_addr = symmetric_chat_clients[pool][1]
 
                             socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                            socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                             turn_port_valid = True
                             while turn_port_valid:
                                 turn_port = random.randint(7001, 8000)
