@@ -17,6 +17,7 @@ class stun_turn:
         self.UnknownNAT = "Unknown NAT"  # 4
         self.NATTYPE = (self.FullCone, self.RestrictNAT, self.RestrictPortNAT, self.SymmetricNAT, self.UnknownNAT)
         self.ip_addr = "3.80.165.3"
+        self.turn_port = 7001
         self.stun_port = 7000
 
     def addr2bytes(self, addr, nat_type_id):
@@ -51,8 +52,6 @@ class stun_turn:
                 # forward symmetric chat msg, act as TURN server
                 try:
                     socket_turn.sendto(data[4:], symmetric_chat_clients[addr])
-                    # print("msg successfully forwarded to {0}".format(symmetric_chat_clients[addr]))
-                    # print(data[4:])
                 except KeyError:
                     socket_turn.sendto("LC Stop\0", addr)
                     print("something is wrong with symmetric_chat_clients!")
@@ -140,16 +139,17 @@ class stun_turn:
                             socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                             turn_port_valid = True
                             while turn_port_valid:
-                                turn_port = random.randint(7001, 8000)
-                                print "turn server trying to connect to port *:%d (udp)" % turn_port
+                                print "turn server trying to connect to port *:%d (udp)" % self.turn_port
                                 try:
-                                    socket_turn.bind(("", turn_port))
+                                    socket_turn.bind(("", self.turn_port))
                                     turn_port_valid = False
                                 except:
+                                    print "turn port is occupied at: %d" % self.turn_port
+                                    self.turn_port = random.randint(7001, 8000)
                                     continue
-                            print "listening on turn port *:%d (udp)" % turn_port
-                            sockfd.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), recorded_client_addr)
-                            sockfd.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), addr)
+                            print "listening on turn port *:%d (udp)" % self.turn_port
+                            sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), recorded_client_addr)
+                            sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
 
                             turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr))
                             turn_thread.setDaemon(True)
