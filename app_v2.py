@@ -53,8 +53,8 @@ class stun_turn:
             except:
                 continue
         print "listening on turn port *:%d (udp)" % turn_port
-        socket_turn.sendto(self.addr2bytes((self.ip_addr, turn_port), 1), address_a)
-        socket_turn.sendto(self.addr2bytes((self.ip_addr, turn_port), 1), address_b)
+        socket_turn.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), address_a)
+        socket_turn.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), address_b)
         turn_forwarding = True
         while turn_forwarding:
             data, addr = socket_turn.recvfrom(1024)
