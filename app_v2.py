@@ -39,24 +39,10 @@ class stun_turn:
         bytes += struct.pack("H", nat_type_id)
         return bytes
 
-    def turn(self, address_a, address_b):
-        socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    def turn(self, socket_turn, address_a, address_b):
         symmetric_chat_clients = {}
         symmetric_chat_clients[address_a] = address_b
         symmetric_chat_clients[address_b] = address_a
-        turn_port_valid = True
-        while turn_port_valid:
-            turn_port = random.randint(7001, 8000)
-            print "turn server trying to connect to port *:%d (udp)" % turn_port
-            try:
-                socket_turn.bind(("", turn_port))
-                turn_port_valid = False
-            except:
-                continue
-        print "listening on turn port *:%d (udp)" % turn_port
-        print(address_a, address_b)
-        socket_turn.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), address_a)
-        socket_turn.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), address_b)
         turn_forwarding = True
         while turn_forwarding:
             data, addr = socket_turn.recvfrom(1024)
@@ -123,7 +109,22 @@ class stun_turn:
                     if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
                         # at least one is symmetric NAT
                         recorded_client_addr = symmetric_chat_clients[pool][1]
-                        turn_thread = Thread(target=self.turn(recorded_client_addr, addr))
+
+                        socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        turn_port_valid = True
+                        while turn_port_valid:
+                            turn_port = random.randint(7001, 8000)
+                            print "turn server trying to connect to port *:%d (udp)" % turn_port
+                            try:
+                                socket_turn.bind(("", turn_port))
+                                turn_port_valid = False
+                            except:
+                                continue
+                        print "listening on turn port *:%d (udp)" % turn_port
+                        sockfd.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), recorded_client_addr)
+                        sockfd.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), addr)
+
+                        turn_thread = Thread(target=self.turn(socket_turn, recorded_client_addr, addr))
                         turn_thread.start()
                         print("Hurray! symmetric chat link established.")
                         del symmetric_chat_clients[pool]
