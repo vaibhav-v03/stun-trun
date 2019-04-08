@@ -129,7 +129,6 @@ class stun_turn:
                         turn_thread.start()
                         print("Hurray! symmetric chat link established.")
                         del symmetric_chat_clients[pool]
-                        del poolqueue[pool]
                     else:
                         del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                 else:
