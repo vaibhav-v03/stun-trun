@@ -94,18 +94,18 @@ class Client():
             while True:
                 data, addr = sock.recvfrom(1024)  # received peer's ip + port from server
                 if addr == self.target or addr == self.master:
-                    # sys.stdout.write(data)
-                    data = audioop.ulaw2lin(data, 2)
-                    self.in_stream.write(data)
+                    sys.stdout.write(data)
+                    # data = audioop.ulaw2lin(data, 2)
+                    # self.in_stream.write(data)
                     if data == "punching...\n":  # peer是restrict
                         sock.sendto("end punching", addr)
 
     def send_msg(self, sock):
         while True:
-            # data = sys.stdin.readline()
-            data = 'msg '
-            data += audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
-            sock.sendto(data, self.target)
+            data = sys.stdin.readline()
+            # data = 'msg '
+            # data += audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
+            sock.sendto('msg ' + data, self.target)
 
     @staticmethod
     def start_working_threads(send, recv, event=None, *args, **kwargs):
@@ -183,8 +183,10 @@ class Client():
             print("Symmetric chat mode")
             self.chat_symmetric()
         if nat_type == SymmetricNAT or self.peer_nat_type == SymmetricNAT:
-            print("Symmetric chat mode")
-            self.chat_symmetric()
+            # print("Symmetric chat mode")
+            # self.chat_symmetric()
+            print("FullCone chat mode")
+            self.chat_fullcone()
         elif nat_type == FullCone:
             print("FullCone chat mode")
             self.chat_fullcone()
