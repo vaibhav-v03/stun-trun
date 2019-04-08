@@ -125,6 +125,7 @@ class stun_turn:
                         sockfd.sendto(self.addr2bytes((self.ip_addr, turn_port), '0'), addr)
 
                         turn_thread = Thread(target=self.turn(socket_turn, recorded_client_addr, addr))
+                        turn_thread.setDaemon(True)
                         turn_thread.start()
                         print("Hurray! symmetric chat link established.")
                         del symmetric_chat_clients[pool]
