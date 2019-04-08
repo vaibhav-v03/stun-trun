@@ -105,30 +105,31 @@ class stun_turn:
 
             print "request received for pool:", pool
 
-            try:
-                a, b = poolqueue[pool].addr, addr
-                nat_type_id_a, nat_type_id_b = poolqueue[pool].nat_type_id, nat_type_id
-                sockfd.sendto(self.addr2bytes(a, nat_type_id_a), b)
-                sockfd.sendto(self.addr2bytes(b, nat_type_id_b), a)
-                print "linked", pool
-                del poolqueue[pool]
-            # KeyError ==> pool not exist yet, initiate one
-            except KeyError:
-                poolqueue[pool] = ClientInfo(addr, nat_type_id)
-
-            if pool in symmetric_chat_clients:
-                if nat_type_id == '3' or symmetric_chat_clients[pool][0] == '3':
-                    # at least one is symmetric NAT
-                    recorded_client_addr = symmetric_chat_clients[pool][1]
-                    turn_thread = Thread(target=self.turn(recorded_client_addr, addr))
-                    turn_thread.start()
-                    print("Hurray! symmetric chat link established.")
-                    del symmetric_chat_clients[pool]
+            if nat_type_id == '0':
+                try:
+                    a, b = poolqueue[pool].addr, addr
+                    nat_type_id_a, nat_type_id_b = poolqueue[pool].nat_type_id, nat_type_id
+                    sockfd.sendto(self.addr2bytes(a, nat_type_id_a), b)
+                    sockfd.sendto(self.addr2bytes(b, nat_type_id_b), a)
+                    print "linked", pool
                     del poolqueue[pool]
-                else:
-                    del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
+                # KeyError ==> pool not exist yet, initiate one
+                except KeyError:
+                    poolqueue[pool] = ClientInfo(addr, nat_type_id)
             else:
-                symmetric_chat_clients[pool] = (nat_type_id, addr)
+                if pool in symmetric_chat_clients:
+                    if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
+                        # at least one is symmetric NAT
+                        recorded_client_addr = symmetric_chat_clients[pool][1]
+                        turn_thread = Thread(target=self.turn(recorded_client_addr, addr))
+                        turn_thread.start()
+                        print("Hurray! symmetric chat link established.")
+                        del symmetric_chat_clients[pool]
+                        del poolqueue[pool]
+                    else:
+                        del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
+                else:
+                    symmetric_chat_clients[pool] = (nat_type_id, addr)
 
 
 if __name__ == "__main__":
