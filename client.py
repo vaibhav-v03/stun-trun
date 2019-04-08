@@ -33,6 +33,19 @@ def bytes2addr(bytes):
 
 class Client():
     def __init__(self):
+        # initialize the audio object
+        p = pyaudio.PyAudio()
+        self.in_stream = p.open(format=pyaudio.paInt16,
+                           channels=1,
+                           rate=16000,
+                           output=True)
+
+        self.CHUNK = 512
+        self.out_stream = p.open(format=pyaudio.paInt8,
+                            channels=1,
+                            rate=16000,
+                            input=True,
+                            frames_per_buffer=self.CHUNK)
         try:
             master_ip = '127.0.0.1' if sys.argv[1] == 'localhost' else sys.argv[1]
             self.master = (master_ip, int(sys.argv[2]))
@@ -81,13 +94,17 @@ class Client():
             while True:
                 data, addr = sock.recvfrom(1024)  # received peer's ip + port from server
                 if addr == self.target or addr == self.master:
-                    sys.stdout.write(data)
+                    # sys.stdout.write(data)
+                    data = audioop.ulaw2lin(data, 2)
+                    self.in_stream.write(data)
                     if data == "punching...\n":  # peer是restrict
                         sock.sendto("end punching", addr)
 
     def send_msg(self, sock):
         while True:
-            data = sys.stdin.readline()
+            # data = sys.stdin.readline()
+            data = 'msg '
+            data += audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
             sock.sendto(data, self.target)
 
     @staticmethod
@@ -125,24 +142,11 @@ class Client():
         """
         Completely rely on relay server(TURN)
         """
-        p = pyaudio.PyAudio()
-        in_stream = p.open(format=pyaudio.paInt16,
-                        channels=1,
-                        rate=16000,
-                        output=True)
-
-        CHUNK = 512
-        out_stream = p.open(format=pyaudio.paInt8,
-                        channels=1,
-                        rate=16000,
-                        input=True,
-                        frames_per_buffer=CHUNK)
-
         def send_msg_symm(sock):
             while True:
                 # data = 'msg ' + sys.stdin.readline()
                 data = 'msg '
-                data += audioop.lin2ulaw(out_stream.read(CHUNK), 1)
+                data += audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
                 sock.sendto(data, self.master)
 
         def recv_msg_symm(sock):
@@ -152,7 +156,7 @@ class Client():
                 if addr == self.master:
                     # sys.stdout.write(data)
                     data = audioop.ulaw2lin(data, 2)
-                    in_stream.write(data)
+                    self.in_stream.write(data)
 
         self.start_working_threads(send_msg_symm, recv_msg_symm, None,
                                    self.sockfd)
