@@ -49,7 +49,7 @@ class stun_turn:
             turn_port = random.randint(7001, 8000)
             print "turn server trying to connect to port *:%d (udp)" % turn_port
             try:
-                socket_turn.bind("", turn_port)
+                socket_turn.bind(("", turn_port))
                 turn_port_valid = False
             except:
                 continue
