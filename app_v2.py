@@ -62,7 +62,8 @@ class stun_turn:
                         socket_turn.close()
             elif data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
-                del symmetric_chat_clients[addr]
+                del symmetric_chat_clients[address_a]
+                del symmetric_chat_clients[address_b]
 
     def stun(self, stun_port):
         self.stun_port = stun_port
