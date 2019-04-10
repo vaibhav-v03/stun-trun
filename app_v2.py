@@ -57,8 +57,11 @@ class stun_turn:
                     print("something is wrong with symmetric_chat_clients!")
                     error_msg_counter += 1
                     if error_msg_counter == 10:
+                        print("Turn port time out, closing...")
                         turn_forwarding = False
                         socket_turn.close()
+            elif data.startswith("LC Stop"):
+                del symmetric_chat_clients[addr]
 
     def stun(self, stun_port):
         self.stun_port = stun_port
@@ -72,10 +75,6 @@ class stun_turn:
         print "listening on *:%d (udp)" % port
 
         poolqueue = {}
-
-        # A,B with addr_A,addr_B,pool=100
-        # temp state {100:(nat_type_id, addr_A, addr_B)}
-        # final state {addr_A:addr_B, addr_B:addr_A}
         symmetric_chat_clients = {}
 
         ClientInfo = namedtuple("ClientInfo", "addr, nat_type_id")
