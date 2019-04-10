@@ -55,7 +55,7 @@ class stun_turn:
             else:
                 # forward symmetric chat msg, act as TURN server
                 try:
-                    socket_turn.sendto(data[4:], symmetric_chat_clients[addr])
+                    socket_turn.sendto(data, symmetric_chat_clients[addr])
                 except KeyError:
                     socket_turn.sendto("LC Stop\0", addr)
                     print("Symmetric call ends, waiting for turn port timeout!")
