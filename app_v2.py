@@ -60,6 +60,7 @@ class stun_turn:
                         print("Turn port time out, closing...")
                         turn_forwarding = False
                         socket_turn.close()
+                        sys.exit()
             elif data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
                 del symmetric_chat_clients[address_a]

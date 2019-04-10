@@ -105,7 +105,7 @@ class Client():
             # data = sys.stdin.readline()
             data = 'msg '
             data += audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
-            sock.sendto('msg ' + data, self.target)
+            sock.sendto(data, self.target)
 
     @staticmethod
     def start_working_threads(send, recv, event=None, *args, **kwargs):
