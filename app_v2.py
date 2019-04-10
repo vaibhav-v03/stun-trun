@@ -61,6 +61,7 @@ class stun_turn:
                         turn_forwarding = False
                         socket_turn.close()
             elif data.startswith("LC Stop"):
+                print("Terminate call request received, cleaning pool...")
                 del symmetric_chat_clients[addr]
 
     def stun(self, stun_port):
