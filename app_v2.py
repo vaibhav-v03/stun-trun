@@ -48,7 +48,11 @@ class stun_turn:
         error_msg_counter = 0
         while turn_forwarding:
             data, addr = socket_turn.recvfrom(1024)
-            if data.startswith("msg "):
+            if data.startswith("LC Stop"):
+                print("Terminate call request received, cleaning pool...")
+                del symmetric_chat_clients[address_a]
+                del symmetric_chat_clients[address_b]
+            else:
                 # forward symmetric chat msg, act as TURN server
                 try:
                     socket_turn.sendto(data[4:], symmetric_chat_clients[addr])
@@ -61,10 +65,7 @@ class stun_turn:
                         turn_forwarding = False
                         socket_turn.close()
                         sys.exit()
-            elif data.startswith("LC Stop"):
-                print("Terminate call request received, cleaning pool...")
-                del symmetric_chat_clients[address_a]
-                del symmetric_chat_clients[address_b]
+
 
     def stun(self, stun_port):
         self.stun_port = stun_port

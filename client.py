@@ -103,8 +103,7 @@ class Client():
     def send_msg(self, sock):
         while True:
             # data = sys.stdin.readline()
-            data = 'msg '
-            data += audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
+            data = audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
             sock.sendto(data, self.target)
 
     @staticmethod
