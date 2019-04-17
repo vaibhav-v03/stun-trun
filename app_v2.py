@@ -110,7 +110,7 @@ class stun_turn:
                 try:
                     pool, nat_type_id = data.strip().split()
                 except:
-                    socket_turn.sendto("LC Stop\0", addr)
+                    sockfd.sendto("LC Stop\0", addr)
                     continue
                 sockfd.sendto("ok {0}".format(pool), addr)
                 print("pool={0}, nat_type={1}, ok sent to client".format(pool, self.NATTYPE[int(nat_type_id)]))
