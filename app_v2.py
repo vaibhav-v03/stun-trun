@@ -48,8 +48,6 @@ class stun_turn:
         error_msg_counter = 0
         while turn_forwarding:
             data, addr = socket_turn.recvfrom(1024)
-            print("symmetric dic: ", symmetric_chat_clients)
-            print("received from: ", addr)
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
                 del symmetric_chat_clients[address_a]
