@@ -133,6 +133,7 @@ class stun_turn:
                     # KeyError ==> pool not exist yet, initiate one
                     except KeyError:
                         poolqueue[pool] = ClientInfo(addr, nat_type_id)
+                        symmetric_chat_clients[pool] = (nat_type_id, addr)
                 else:
                     if pool in symmetric_chat_clients:
                         if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
@@ -160,6 +161,8 @@ class stun_turn:
                             turn_thread.start()
                             print("Hurray! symmetric chat link established.")
                             del symmetric_chat_clients[pool]
+                            if pool in poolqueue:
+                                del poolqueue[pool]
                         else:
                             del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                     else:
