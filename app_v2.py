@@ -47,7 +47,13 @@ class stun_turn:
         turn_forwarding = True
         error_msg_counter = 0
         while turn_forwarding:
-            data, addr = socket_turn.recvfrom(1024)
+            try:
+                socket_turn.settimeout(30.0)
+                data, addr = socket_turn.recvfrom(1024)
+            except socket.timeout:
+                print("turn socket timeout")
+                socket_turn.close()
+                sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
                 del symmetric_chat_clients[address_a]
@@ -112,13 +118,13 @@ class stun_turn:
                 except:
                     sockfd.sendto("LC Stop\0", addr)
                     continue
-                sockfd.sendto("ok {0}".format(pool), addr)
-                print("pool={0}, nat_type={1}, ok sent to client".format(pool, self.NATTYPE[int(nat_type_id)]))
-                data, addr = sockfd.recvfrom(2)
-                if data != "ok":
-                    print("Didn't get ok back from client, actual msg is: " + data)
-                    print("Cleaning the pool...")
-                    continue
+                # sockfd.sendto("ok {0}".format(pool), addr)
+                # print("pool={0}, nat_type={1}, ok sent to client".format(pool, self.NATTYPE[int(nat_type_id)]))
+                # data, addr = sockfd.recvfrom(2)
+                # if data != "ok":
+                #     print("Didn't get ok back from client, actual msg is: " + data)
+                #     print("Cleaning the pool...")
+                #     continue
 
                 print "request received for pool:", pool
 
@@ -148,7 +154,7 @@ class stun_turn:
                                 try:
                                     socket_turn.bind(("", self.turn_port))
                                     turn_port_valid = False
-                                except:
+                                except socket.error:
                                     print "turn port is occupied at: %d" % self.turn_port
                                     self.turn_port = random.randint(7001, 8000)
                                     continue
