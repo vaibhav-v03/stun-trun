@@ -72,7 +72,6 @@ class stun_turn:
                         socket_turn.close()
                         sys.exit()
 
-
     def stun(self, stun_port):
         self.stun_port = stun_port
         try:
@@ -99,15 +98,6 @@ class stun_turn:
                 if pool in symmetric_chat_clients:
                     print("Cancel request before connecting")
                     del symmetric_chat_clients[pool]
-                if addr in symmetric_chat_clients:
-                    try:
-                        recorded_client_addr = symmetric_chat_clients[addr]
-                        print("Cancel request after connecting to " + recorded_client_addr[0])
-                        del symmetric_chat_clients[recorded_client_addr]
-                        del symmetric_chat_clients[addr]
-                    except KeyError:
-                        print("Voice call pool is cleaned, key error")
-                        continue
                 sockfd.sendto("cancel!!", addr)
                 print "Connection request canceled"
                 print "Continue listening on *:%d (udp)" % port
