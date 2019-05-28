@@ -146,6 +146,9 @@ class stun_turn:
                             # at least one is symmetric NAT
                             recorded_client_addr = symmetric_chat_clients[pool][1]
 
+                            if recorded_client_addr == addr:
+                                continue
+
                             socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                             socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                             turn_port_valid = True
