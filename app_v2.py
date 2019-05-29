@@ -8,8 +8,9 @@ import sys
 from threading import Thread
 from collections import namedtuple
 
+
 class stun_turn:
-    def __init__(self):
+    def __init__(self, stun_port, turn_port):
         self.FullCone = "Full Cone"  # 0
         self.RestrictNAT = "Restrict NAT"  # 1
         self.RestrictPortNAT = "Restrict Port NAT"  # 2
@@ -17,8 +18,9 @@ class stun_turn:
         self.UnknownNAT = "Unknown NAT"  # 4
         self.NATTYPE = (self.FullCone, self.RestrictNAT, self.RestrictPortNAT, self.SymmetricNAT, self.UnknownNAT)
         self.ip_addr = "3.80.165.3"
-        self.turn_port = 7001
-        self.stun_port = 7000
+        self.turn_port = turn_port
+        self.stun_port = stun_port
+        self.stun()
 
     def addr2bytes(self, addr, nat_type_id):
         """Convert an address pair to a hash."""
@@ -72,16 +74,15 @@ class stun_turn:
                         socket_turn.close()
                         sys.exit()
 
-    def stun(self, stun_port):
-        self.stun_port = stun_port
+    def stun(self):
+        port = self.stun_port
+        sockfd = None
         try:
-            port = int(self.stun_port)
-        except (IndexError, ValueError):
-            pass
-
-        sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sockfd.bind(("", port))
-        print "listening on *:%d (udp)" % port
+            sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sockfd.bind(("", port))
+        except socket.error:
+            print("socket creating or binding error at port: %d" % port)
+        print "listening on *:%d (udp)\n" % port
 
         poolqueue = {}
         symmetric_chat_clients = {}
@@ -91,7 +92,6 @@ class stun_turn:
             data, addr = sockfd.recvfrom(1024)
             if data.startswith("del "):
                 print("Communication cancel requested!")
-
                 pool = data[4:]
                 if pool in poolqueue:
                     del poolqueue[pool]
@@ -149,7 +149,7 @@ class stun_turn:
                                     turn_port_valid = False
                                 except socket.error:
                                     print "turn port is occupied at: %d" % self.turn_port
-                                    self.turn_port = random.randint(7001, 8000)
+                                    self.turn_port = self.stun_port + random.randint(1, 999)
                                     continue
                             print "listening on turn port *:%d (udp)" % self.turn_port
                             sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), recorded_client_addr)
@@ -169,10 +169,7 @@ class stun_turn:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("usage: app.py port")
-        exit(0)
-    else:
-        assert sys.argv[1].isdigit(), "port should be a number!"
-        app = stun_turn()
-        app.stun(sys.argv[1])
+    stun_ports = [7000, 8000, 9000, 10000, 11000, 12000, 13000]
+    for stun_port in stun_ports:
+        stun_thread = Thread(target=stun_turn, args=(stun_port, stun_port + 1))
+        stun_thread.start()
