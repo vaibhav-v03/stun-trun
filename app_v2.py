@@ -178,6 +178,9 @@ if __name__ == "__main__":
     for i, stun_port in enumerate(stun_ports):
         stun_thread = Thread(target=stun_turn, args=(i, stun_status, stun_port, stun_port + 1))
         stun_thread.start()
+
+    time.sleep(60)
+    
     while True:
         for i, stun_port in enumerate(stun_ports):
             print("status on port %d" % stun_ports[i], stun_status[i])
