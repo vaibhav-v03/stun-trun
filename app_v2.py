@@ -77,13 +77,15 @@ class stun_turn:
     def stun(self):
         port = self.stun_port
         sockfd = None
-        try:
-            sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sockfd.bind(("", port))
-        except socket.error:
-            print("socket creating or binding error at port: %d" % port)
-            sockfd.close()
-            sys.exit()
+        sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sockfd.bind(("", port))
+        # try:
+        #     sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        #     sockfd.bind(("", port))
+        # except socket.error:
+        #     print("socket creating or binding error at port: %d" % port)
+        #     sockfd.close()
+        #     sys.exit()
         print "listening on *:%d (udp)\n" % port
 
         poolqueue = {}
