@@ -5,12 +5,13 @@ import socket
 import struct
 import random
 import sys
+import time
 from threading import Thread
 from collections import namedtuple
 
 
 class stun_turn:
-    def __init__(self, stun_port, turn_port):
+    def __init__(self, index, status, stun_port, turn_port):
         self.FullCone = "Full Cone"  # 0
         self.RestrictNAT = "Restrict NAT"  # 1
         self.RestrictPortNAT = "Restrict Port NAT"  # 2
@@ -20,6 +21,8 @@ class stun_turn:
         self.ip_addr = "3.80.165.3"
         self.turn_port = turn_port
         self.stun_port = stun_port
+        self.index = index
+        self.status = status
         self.stun()
 
     def addr2bytes(self, addr, nat_type_id):
@@ -81,98 +84,104 @@ class stun_turn:
             sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sockfd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sockfd.bind(("", port))
-        except socket.error:
-            print("socket creating or binding error at port: %d" % port)
-            sockfd.close()
-            sys.exit()
-        print "listening on *:%d (udp)\n" % port
 
-        poolqueue = {}
-        symmetric_chat_clients = {}
+            print "listening on *:%d (udp)\n" % port
+            self.status[self.index] = True
 
-        ClientInfo = namedtuple("ClientInfo", "addr, nat_type_id")
-        while True:
-            data, addr = sockfd.recvfrom(1024)
-            if data.startswith("del "):
-                print("Communication cancel requested!")
-                pool = data[4:]
-                if pool in poolqueue:
-                    del poolqueue[pool]
-                if pool in symmetric_chat_clients:
-                    print("Cancel request before connecting")
-                    del symmetric_chat_clients[pool]
-                sockfd.sendto("cancel!!", addr)
-                print "Connection request canceled"
-                print "Continue listening on *:%d (udp)" % port
-            else:
-                print "connection from %s:%d" % addr
-                try:
-                    pool, nat_type_id = data.strip().split()
-                except:
-                    sockfd.sendto("LC Stop\0", addr)
-                    continue
-                # sockfd.sendto("ok {0}".format(pool), addr)
-                # print("pool={0}, nat_type={1}, ok sent to client".format(pool, self.NATTYPE[int(nat_type_id)]))
-                # data, addr = sockfd.recvfrom(2)
-                # if data != "ok":
-                #     print("Didn't get ok back from client, actual msg is: " + data)
-                #     print("Cleaning the pool...")
-                #     continue
+            poolqueue = {}
+            symmetric_chat_clients = {}
 
-                print "request received for pool:", pool
-
-                if nat_type_id == '0':
-                    try:
-                        a, b = poolqueue[pool].addr, addr
-                        nat_type_id_a, nat_type_id_b = poolqueue[pool].nat_type_id, nat_type_id
-                        sockfd.sendto(self.addr2bytes(a, nat_type_id_a), b)
-                        sockfd.sendto(self.addr2bytes(b, nat_type_id_b), a)
-                        print "linked", pool
+            ClientInfo = namedtuple("ClientInfo", "addr, nat_type_id")
+            while True:
+                data, addr = sockfd.recvfrom(1024)
+                if data.startswith("del "):
+                    print("Communication cancel requested!")
+                    pool = data[4:]
+                    if pool in poolqueue:
                         del poolqueue[pool]
-                    # KeyError ==> pool not exist yet, initiate one
-                    except KeyError:
-                        poolqueue[pool] = ClientInfo(addr, nat_type_id)
-                        symmetric_chat_clients[pool] = (nat_type_id, addr)
-                else:
                     if pool in symmetric_chat_clients:
-                        if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
-                            # at least one is symmetric NAT
-                            recorded_client_addr = symmetric_chat_clients[pool][1]
+                        print("Cancel request before connecting")
+                        del symmetric_chat_clients[pool]
+                    sockfd.sendto("cancel!!", addr)
+                    print "Connection request canceled"
+                    print "Continue listening on *:%d (udp)" % port
+                else:
+                    print "connection from %s:%d" % addr
+                    try:
+                        pool, nat_type_id = data.strip().split()
+                    except:
+                        sockfd.sendto("LC Stop\0", addr)
+                        continue
 
-                            if recorded_client_addr == addr:
-                                continue
+                    print "request received for pool:", pool
 
-                            socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                            socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                            turn_port_valid = True
-                            while turn_port_valid:
-                                print "turn server trying to connect to port *:%d (udp)" % self.turn_port
-                                try:
-                                    socket_turn.bind(("", self.turn_port))
-                                    turn_port_valid = False
-                                except socket.error:
-                                    print "turn port is occupied at: %d" % self.turn_port
-                                    self.turn_port = self.stun_port + random.randint(1, 999)
-                                    continue
-                            print "listening on turn port *:%d (udp)" % self.turn_port
-                            sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), recorded_client_addr)
-                            sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
-
-                            turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr))
-                            turn_thread.setDaemon(True)
-                            turn_thread.start()
-                            print("Hurray! symmetric chat link established.")
-                            del symmetric_chat_clients[pool]
-                            if pool in poolqueue:
-                                del poolqueue[pool]
-                        else:
-                            del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
+                    if nat_type_id == '0':
+                        try:
+                            a, b = poolqueue[pool].addr, addr
+                            nat_type_id_a, nat_type_id_b = poolqueue[pool].nat_type_id, nat_type_id
+                            sockfd.sendto(self.addr2bytes(a, nat_type_id_a), b)
+                            sockfd.sendto(self.addr2bytes(b, nat_type_id_b), a)
+                            print "linked", pool
+                            del poolqueue[pool]
+                        # KeyError ==> pool not exist yet, initiate one
+                        except KeyError:
+                            poolqueue[pool] = ClientInfo(addr, nat_type_id)
+                            symmetric_chat_clients[pool] = (nat_type_id, addr)
                     else:
-                        symmetric_chat_clients[pool] = (nat_type_id, addr)
+                        if pool in symmetric_chat_clients:
+                            if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
+                                # at least one is symmetric NAT
+                                recorded_client_addr = symmetric_chat_clients[pool][1]
+
+                                if recorded_client_addr == addr:
+                                    continue
+
+                                socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                                socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                                turn_port_valid = True
+                                while turn_port_valid:
+                                    print "turn server trying to connect to port *:%d (udp)" % self.turn_port
+                                    try:
+                                        socket_turn.bind(("", self.turn_port))
+                                        turn_port_valid = False
+                                    except socket.error:
+                                        print "turn port is occupied at: %d" % self.turn_port
+                                        self.turn_port = self.stun_port + random.randint(1, 999)
+                                        continue
+                                print "listening on turn port *:%d (udp)" % self.turn_port
+                                sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'),
+                                              recorded_client_addr)
+                                sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
+
+                                turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr))
+                                turn_thread.setDaemon(True)
+                                turn_thread.start()
+                                print("Hurray! symmetric chat link established.")
+                                del symmetric_chat_clients[pool]
+                                if pool in poolqueue:
+                                    del poolqueue[pool]
+                            else:
+                                del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
+                        else:
+                            symmetric_chat_clients[pool] = (nat_type_id, addr)
+        except:
+            print("stun server on port %d is terminated, waiting for restart" % self.stun_port)
+            self.status[self.index] = False
+            if sockfd is not None:
+                sockfd.close()
+            sys.exit()
 
 
 if __name__ == "__main__":
     stun_ports = [7000, 8000, 9000, 10000, 11000, 12000, 13000]
-    for stun_port in stun_ports:
-        stun_thread = Thread(target=stun_turn, args=(stun_port, stun_port + 1))
+    stun_status = [False, False, False, False, False, False, False]
+    for i, stun_port in enumerate(stun_ports):
+        stun_thread = Thread(target=stun_turn, args=(i, stun_status, stun_port, stun_port + 1))
         stun_thread.start()
+    while True:
+        for i, stun_port in enumerate(stun_ports):
+            print("status on port %d" % stun_ports[i], stun_status[i])
+            if not stun_status[i]:
+                stun_thread = Thread(target=stun_turn, args=(i, stun_status, stun_ports[i], stun_ports[i] + 1))
+                stun_thread.start()
+        time.sleep(60)
