@@ -82,6 +82,8 @@ class stun_turn:
             sockfd.bind(("", port))
         except socket.error:
             print("socket creating or binding error at port: %d" % port)
+            sockfd.close()
+            sys.exit()
         print "listening on *:%d (udp)\n" % port
 
         poolqueue = {}
