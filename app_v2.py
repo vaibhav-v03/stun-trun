@@ -79,7 +79,6 @@ class stun_turn:
         sockfd = None
         try:
             sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sockfd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sockfd.bind(("", port))
         except socket.error:
             print("socket creating or binding error at port: %d" % port)
