@@ -53,7 +53,7 @@ class stun_turn:
         error_msg_counter = 0
         while turn_forwarding:
             try:
-                socket_turn.settimeout(30.0)
+                socket_turn.settimeout(10.0)
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 print("turn socket timeout")
@@ -67,6 +67,7 @@ class stun_turn:
                     del symmetric_chat_clients[address_b]
                 except KeyError:
                     socket_turn.sendto("cancel!!", addr)
+                socket_turn.sendto("cancel!!", addr)
             else:
                 # forward symmetric chat msg, act as TURN server
                 try:
@@ -167,6 +168,7 @@ class stun_turn:
                                     if pool in poolqueue:
                                         del poolqueue[pool]
                                 else:
+                                    print("retry request for the turn server")
                                     sockfd.sendto(self.addr2bytes(symmetric_chat_clients[pool][1], '0'), addr)
                             else:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
