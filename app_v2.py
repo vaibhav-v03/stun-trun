@@ -45,7 +45,7 @@ class stun_turn:
         bytes += struct.pack("H", nat_type_id)
         return bytes
 
-    def turn(self, socket_turn, address_a, address_b):
+    def turn(self, socket_turn, address_a, address_b, main_thread_pool, pool):
         symmetric_chat_clients = {}
         symmetric_chat_clients[address_a] = address_b
         symmetric_chat_clients[address_b] = address_a
@@ -58,6 +58,7 @@ class stun_turn:
             except socket.timeout:
                 print("turn socket timeout")
                 socket_turn.close()
+                del main_thread_pool[pool]
                 sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
@@ -76,6 +77,7 @@ class stun_turn:
                         print("Turn port time out, closing...")
                         turn_forwarding = False
                         socket_turn.close()
+                        del main_thread_pool[pool]
                         sys.exit()
 
     def stun(self):
@@ -136,35 +138,38 @@ class stun_turn:
 
                                 if recorded_client_addr == addr:
                                     continue
+                                if not symmetric_chat_clients[pool][2]:
+                                    socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                                    socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                                    turn_port_valid = True
+                                    while turn_port_valid:
+                                        print "turn server trying to connect to port *:%d (udp)" % self.turn_port
+                                        try:
+                                            socket_turn.bind(("", self.turn_port))
+                                            turn_port_valid = False
+                                        except socket.error:
+                                            print "turn port is occupied at: %d" % self.turn_port
+                                            self.turn_port = self.stun_port + random.randint(1, 999)
+                                            continue
+                                    print "listening on turn port *:%d (udp)" % self.turn_port
+                                    sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'),
+                                                  recorded_client_addr)
+                                    sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
 
-                                socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                                socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                                turn_port_valid = True
-                                while turn_port_valid:
-                                    print "turn server trying to connect to port *:%d (udp)" % self.turn_port
-                                    try:
-                                        socket_turn.bind(("", self.turn_port))
-                                        turn_port_valid = False
-                                    except socket.error:
-                                        print "turn port is occupied at: %d" % self.turn_port
-                                        self.turn_port = self.stun_port + random.randint(1, 999)
-                                        continue
-                                print "listening on turn port *:%d (udp)" % self.turn_port
-                                sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'),
-                                              recorded_client_addr)
-                                sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
-
-                                turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr))
-                                turn_thread.setDaemon(True)
-                                turn_thread.start()
-                                print("Hurray! symmetric chat link established.")
-                                del symmetric_chat_clients[pool]
-                                if pool in poolqueue:
-                                    del poolqueue[pool]
+                                    turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr, symmetric_chat_clients, pool))
+                                    turn_thread.setDaemon(True)
+                                    turn_thread.start()
+                                    symmetric_chat_clients[pool] = ['0', (self.ip_addr, self.turn_port), True]
+                                    print("Hurray! symmetric chat link established.")
+                                    # del symmetric_chat_clients[pool]
+                                    if pool in poolqueue:
+                                        del poolqueue[pool]
+                                else:
+                                    sockfd.sendto(self.addr2bytes(symmetric_chat_clients[pool][1], '0'), addr)
                             else:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
-                            symmetric_chat_clients[pool] = (nat_type_id, addr)
+                            symmetric_chat_clients[pool] = [nat_type_id, addr, False]
         except:
             print("stun server on port %d is terminated, waiting for restart" % self.stun_port)
             self.status[self.index] = False
