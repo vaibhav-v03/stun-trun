@@ -63,6 +63,7 @@ class stun_turn:
                 print("Terminate call request received, cleaning pool...")
                 del symmetric_chat_clients[address_a]
                 del symmetric_chat_clients[address_b]
+                socket_turn.sendto("cancel!!", addr)
             else:
                 # forward symmetric chat msg, act as TURN server
                 try:
