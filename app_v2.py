@@ -66,6 +66,7 @@ class stun_turn:
                     del symmetric_chat_clients[address_a]
                     del symmetric_chat_clients[address_b]
                 except KeyError:
+                    del main_thread_pool[pool]
                     socket_turn.sendto("cancel!!", addr)
                 socket_turn.sendto("cancel!!", addr)
             else:
@@ -73,6 +74,9 @@ class stun_turn:
                 try:
                     socket_turn.sendto(data, symmetric_chat_clients[addr])
                 except KeyError:
+                    if len(symmetric_chat_clients) != 0:
+                        print("Someone else trying to join the talk, ignore...")
+                        continue
                     socket_turn.sendto("LC Stop\0", addr)
                     print("Symmetric call ends, waiting for turn port timeout!")
                     error_msg_counter += 1
