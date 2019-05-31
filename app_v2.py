@@ -124,7 +124,7 @@ class stun_turn:
                         sockfd.sendto("LC Stop\0", addr)
                         continue
 
-                    print "request received for pool:", pool
+                    print "request received from {} for pool: {}".format(device_type, pool)
 
                     if nat_type_id == '0':
                         try:
