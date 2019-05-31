@@ -63,12 +63,13 @@ class stun_turn:
                 sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
-                try:
+                if address_a in symmetric_chat_clients:
                     del symmetric_chat_clients[address_a]
+                if address_b in symmetric_chat_clients:
                     del symmetric_chat_clients[address_b]
-                except KeyError:
+
+                if pool in main_thread_pool:
                     del main_thread_pool[pool]
-                    socket_turn.sendto("cancel!!", addr)
                 socket_turn.sendto("cancel!!", addr)
             else:
                 # forward symmetric chat msg, act as TURN server
@@ -84,7 +85,8 @@ class stun_turn:
                     if error_msg_counter == 10:
                         print("Turn port time out, closing...")
                         socket_turn.close()
-                        del main_thread_pool[pool]
+                        if pool in main_thread_pool:
+                            del main_thread_pool[pool]
                         sys.exit()
 
     def stun(self):
