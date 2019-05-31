@@ -147,8 +147,9 @@ class stun_turn:
                                 # prevent self connection
                                 if recorded_client_addr == addr:
                                     continue
-                                print(2)
+                                print(symmetric_chat_clients[pool])
                                 if not symmetric_chat_clients[pool][2]:
+                                    print(3)
                                     socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                                     socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                                     turn_port_valid = True
