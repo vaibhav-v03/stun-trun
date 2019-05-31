@@ -141,12 +141,13 @@ class stun_turn:
                     else:
                         if pool in symmetric_chat_clients:
                             if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
+                                print(1)
                                 # at least one is symmetric NAT
                                 recorded_client_addr = symmetric_chat_clients[pool][1]
                                 # prevent self connection
                                 if recorded_client_addr == addr:
                                     continue
-
+                                print(2)
                                 if not symmetric_chat_clients[pool][2]:
                                     socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                                     socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
