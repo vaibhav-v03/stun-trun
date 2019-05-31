@@ -58,7 +58,8 @@ class stun_turn:
             except socket.timeout:
                 print("turn socket timeout")
                 socket_turn.close()
-                del main_thread_pool[pool]
+                if pool in main_thread_pool:
+                    del main_thread_pool[pool]
                 sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
