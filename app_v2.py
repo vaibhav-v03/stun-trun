@@ -123,7 +123,7 @@ class stun_turn:
                         pool, nat_type_id, device_type = data.strip().split()
                     except:
                         print("pool info error %s" % data)
-                        sockfd.sendto("LC Stop\0", addr)
+                        sockfd.sendto("cancel!!", addr)
                         continue
 
                     print "request received from {} for pool: {}".format(device_type, pool)
