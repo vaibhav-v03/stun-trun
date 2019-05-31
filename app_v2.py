@@ -82,7 +82,6 @@ class stun_turn:
                     error_msg_counter += 1
                     if error_msg_counter == 10:
                         print("Turn port time out, closing...")
-                        turn_forwarding = False
                         socket_turn.close()
                         del main_thread_pool[pool]
                         sys.exit()
@@ -118,7 +117,7 @@ class stun_turn:
                 else:
                     print "connection from %s:%d" % addr
                     try:
-                        pool, nat_type_id = data.strip().split()
+                        pool, nat_type_id, device_type = data.strip().split()
                     except:
                         sockfd.sendto("LC Stop\0", addr)
                         continue
@@ -142,9 +141,10 @@ class stun_turn:
                             if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
                                 # at least one is symmetric NAT
                                 recorded_client_addr = symmetric_chat_clients[pool][1]
-
+                                # prevent self connection
                                 if recorded_client_addr == addr:
                                     continue
+
                                 if not symmetric_chat_clients[pool][2]:
                                     socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                                     socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -172,8 +172,9 @@ class stun_turn:
                                     if pool in poolqueue:
                                         del poolqueue[pool]
                                 else:
-                                    print("retry request for the turn server")
-                                    sockfd.sendto(self.addr2bytes(symmetric_chat_clients[pool][1], '0'), addr)
+                                    print("retry request for the turn server from %s" % device_type)
+                                    if device_type == '1':
+                                        sockfd.sendto(self.addr2bytes(symmetric_chat_clients[pool][1], '0'), addr)
                             else:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
