@@ -176,7 +176,8 @@ class stun_turn:
                                 else:
                                     print("retry request for the turn server from %s" % device_type)
                                     if device_type == '1':
-                                        sockfd.sendto(self.addr2bytes(symmetric_chat_clients[pool][1], '0'), addr)
+                                        byte_sent = sockfd.sendto(self.addr2bytes(symmetric_chat_clients[pool][1], '0'), addr)
+                                        print(byte_sent, len(self.addr2bytes(symmetric_chat_clients[pool][1], '0')))
                             else:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
