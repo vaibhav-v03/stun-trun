@@ -67,10 +67,8 @@ class stun_turn:
                     del symmetric_chat_clients[address_a]
                 if address_b in symmetric_chat_clients:
                     del symmetric_chat_clients[address_b]
-
                 if pool in main_thread_pool:
                     del main_thread_pool[pool]
-                socket_turn.sendto("cancel!!", addr)
             else:
                 # forward symmetric chat msg, act as TURN server
                 try:
