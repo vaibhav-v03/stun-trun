@@ -182,8 +182,9 @@ class stun_turn:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
                             symmetric_chat_clients[pool] = [nat_type_id, addr, False]
-        except:
+        except Exception as e:
             print("stun server on port %d is terminated, waiting for restart" % self.stun_port)
+            print("Stun error: " + e)
             self.status[self.index] = False
             if sockfd is not None:
                 sockfd.close()
