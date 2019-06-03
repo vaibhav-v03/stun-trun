@@ -51,9 +51,10 @@ class stun_turn:
         symmetric_chat_clients[address_b] = address_a
         turn_forwarding = True
         error_msg_counter = 0
+        other_msg_counter = 0
         while turn_forwarding:
             try:
-                socket_turn.settimeout(30.0)
+                socket_turn.settimeout(15.0)
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 print("turn socket timeout")
@@ -76,6 +77,12 @@ class stun_turn:
                 except KeyError:
                     if len(symmetric_chat_clients) != 0:
                         print("Someone else trying to join the talk, ignore...")
+                        other_msg_counter += 1
+                        if other_msg_counter >= 100:
+                            socket_turn.close()
+                            if pool in main_thread_pool:
+                                del main_thread_pool[pool]
+                            sys.exit()
                         continue
                     socket_turn.sendto("LC Stop\0", addr)
                     print("Symmetric call ends, waiting for turn port timeout!")
