@@ -18,7 +18,7 @@ class stun_turn:
         self.SymmetricNAT = "Symmetric NAT"  # 3
         self.UnknownNAT = "Unknown NAT"  # 4
         self.NATTYPE = (self.FullCone, self.RestrictNAT, self.RestrictPortNAT, self.SymmetricNAT, self.UnknownNAT)
-        self.ip_addr = "3.80.165.3"
+        self.ip_addr = "54.165.124.138"
         self.turn_port = turn_port
         self.stun_port = stun_port
         self.index = index
@@ -146,7 +146,7 @@ class stun_turn:
                                 # prevent self connection
                                 if recorded_client_addr == addr:
                                     continue
-                                    
+
                                 if not symmetric_chat_clients[pool][2]:
                                     socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                                     socket_turn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
