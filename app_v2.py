@@ -190,6 +190,8 @@ class stun_turn:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
                             if device_type == '1':
+                                if pool in symmetric_chat_clients:
+                                    del symmetric_chat_clients[pool]
                                 continue
                             symmetric_chat_clients[pool] = [nat_type_id, addr, False]
         except Exception as e:
