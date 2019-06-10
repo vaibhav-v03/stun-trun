@@ -41,7 +41,7 @@ class Client():
                            output=True)
 
         self.CHUNK = 512
-        self.out_stream = p.open(format=pyaudio.paInt8,
+        self.out_stream = p.open(format=pyaudio.paInt16,
                             channels=1,
                             rate=16000,
                             input=True,
@@ -59,12 +59,12 @@ class Client():
 
     def request_for_connection(self, nat_type_id=0):
         self.sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sockfd.sendto(self.pool + ' {0}'.format(nat_type_id), self.master)
-        data, addr = self.sockfd.recvfrom(len(self.pool) + 3)
-        if data != "ok " + self.pool:
-            print(sys.stderr, "unable to request!")
-            sys.exit(1)
-        self.sockfd.sendto("ok", self.master)
+        self.sockfd.sendto(self.pool + ' {0} {1}'.format(nat_type_id, '1'), self.master)
+        # data, addr = self.sockfd.recvfrom(len(self.pool) + 3)
+        # if data != "ok " + self.pool:
+        #     print(sys.stderr, "unable to request!")
+        #     sys.exit(1)
+        # self.sockfd.sendto("ok", self.master)
         sys.stderr = sys.stdout
         print(sys.stderr,
               "request sent, waiting for partner in pool '%s'..." % self.pool)
@@ -103,7 +103,7 @@ class Client():
     def send_msg(self, sock):
         while True:
             # data = sys.stdin.readline()
-            data = audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 1)
+            data = audioop.lin2ulaw(self.out_stream.read(self.CHUNK), 2)
             sock.sendto(data, self.target)
 
     @staticmethod

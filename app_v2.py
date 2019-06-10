@@ -141,6 +141,7 @@ class stun_turn:
                             sockfd.sendto(self.addr2bytes(b, nat_type_id_b), a)
                             print "linked", pool
                             del poolqueue[pool]
+                            del symmetric_chat_clients[pool]
                         # KeyError ==> pool not exist yet, initiate one
                         except KeyError:
                             poolqueue[pool] = ClientInfo(addr, nat_type_id)
@@ -188,6 +189,8 @@ class stun_turn:
                             else:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
+                            if device_type == '1':
+                                continue
                             symmetric_chat_clients[pool] = [nat_type_id, addr, False]
         except Exception as e:
             print("stun server on port %d is terminated, waiting for restart" % self.stun_port)
