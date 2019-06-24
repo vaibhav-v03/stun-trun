@@ -155,6 +155,7 @@ class stun_turn:
                                 recorded_client_addr = symmetric_chat_clients[pool][1]
                                 # prevent self connection
                                 if recorded_client_addr == addr:
+                                    symmetric_chat_clients[pool] = [nat_type_id, addr, False]
                                     continue
 
                                 if not symmetric_chat_clients[pool][2]:
@@ -180,6 +181,7 @@ class stun_turn:
                                     turn_thread.start()
                                     symmetric_chat_clients[pool] = ['0', (self.ip_addr, self.turn_port), True]
                                     print("Hurray! symmetric chat link established.")
+                                    print("======== transfer to turn server =======")
                                     # del symmetric_chat_clients[pool]
                                     if pool in poolqueue:
                                         del poolqueue[pool]
