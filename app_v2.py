@@ -54,10 +54,11 @@ class stun_turn:
         other_msg_counter = 0
         while turn_forwarding:
             try:
-                socket_turn.settimeout(5.0)
+                socket_turn.settimeout(1.0)
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 print("turn socket timeout")
+                print("===================")
                 socket_turn.close()
                 if pool in main_thread_pool:
                     del main_thread_pool[pool]
