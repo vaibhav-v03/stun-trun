@@ -54,7 +54,7 @@ class stun_turn:
         other_msg_counter = 0
         while turn_forwarding:
             try:
-                socket_turn.settimeout(1.0)
+                socket_turn.settimeout(2.0)
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 print("turn socket timeout")
@@ -79,7 +79,7 @@ class stun_turn:
                     if len(symmetric_chat_clients) != 0:
                         print("Someone else trying to join the talk, ignore...")
                         other_msg_counter += 1
-                        if other_msg_counter >= 100:
+                        if other_msg_counter >= 20:
                             socket_turn.close()
                             if pool in main_thread_pool:
                                 del main_thread_pool[pool]
@@ -133,7 +133,7 @@ class stun_turn:
                         continue
 
                     print "request received from {} for pool: {}".format(device_type, pool)
-
+                    # full cone mode
                     if nat_type_id == '0':
                         try:
                             a, b = poolqueue[pool].addr, addr
@@ -147,6 +147,7 @@ class stun_turn:
                         except KeyError:
                             poolqueue[pool] = ClientInfo(addr, nat_type_id)
                             symmetric_chat_clients[pool] = [nat_type_id, addr, False]
+                    # symmetric NAT mode
                     else:
                         if pool in symmetric_chat_clients:
                             if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
@@ -191,8 +192,6 @@ class stun_turn:
                                 del symmetric_chat_clients[pool]  # neither clients are symmetric NAT
                         else:
                             if device_type == '1':
-                                if pool in symmetric_chat_clients:
-                                    del symmetric_chat_clients[pool]
                                 continue
                             symmetric_chat_clients[pool] = [nat_type_id, addr, False]
         except Exception as e:
