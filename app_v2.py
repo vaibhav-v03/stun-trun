@@ -62,7 +62,7 @@ class stun_turn:
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 socket_turn.close()
-                if pool in main_thread_pool and main_thread_pool[pool][2]:
+                if pool in main_thread_pool:
                     del main_thread_pool[pool]
                 print("stun id {} -- turn id {} socket timeout".format(stun_id, turn_id))
                 print("===================")
@@ -154,13 +154,13 @@ class stun_turn:
                     # symmetric NAT mode
                     else:
                         if pool in symmetric_chat_clients:
+                            # pool created ==> device is occupied, decline another app's request
+                            if device_type == '2':
+                                continue
+
                             if nat_type_id != '0' or symmetric_chat_clients[pool][0] != '0':
                                 # at least one is symmetric NAT
                                 recorded_client_addr = symmetric_chat_clients[pool][1]
-                                # prevent self connection
-                                if recorded_client_addr == addr:
-                                    symmetric_chat_clients[pool] = [nat_type_id, addr, False]
-                                    continue
 
                                 if not symmetric_chat_clients[pool][2]:
                                     socket_turn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
