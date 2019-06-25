@@ -54,7 +54,7 @@ class stun_turn:
         other_msg_counter = 0
         while turn_forwarding:
             try:
-                socket_turn.settimeout(2.0)
+                socket_turn.settimeout(5.0)
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 socket_turn.close()
