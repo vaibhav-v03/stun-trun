@@ -81,11 +81,11 @@ class stun_turn:
                 except KeyError:
                     if len(symmetric_chat_clients) != 0:
                         print("Someone else trying to join the talk, ignore...")
+                        if pool in main_thread_pool:
+                            del main_thread_pool[pool]
                         other_msg_counter += 1
                         if other_msg_counter >= 20:
                             socket_turn.close()
-                            if pool in main_thread_pool:
-                                del main_thread_pool[pool]
                             sys.exit()
                         continue
                     socket_turn.sendto("LC Stop\0", addr)
