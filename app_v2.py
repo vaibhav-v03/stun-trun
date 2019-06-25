@@ -64,7 +64,7 @@ class stun_turn:
                 socket_turn.close()
                 if pool in main_thread_pool:
                     del main_thread_pool[pool]
-                print("turn socket timeout")
+                print("stun id {} -- turn id {} socket timeout".format(stun_id, turn_id))
                 print("===================")
                 sys.exit()
             if data.startswith("LC Stop"):
