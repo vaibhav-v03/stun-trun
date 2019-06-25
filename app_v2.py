@@ -62,7 +62,7 @@ class stun_turn:
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
                 socket_turn.close()
-                if pool in main_thread_pool:
+                if pool in main_thread_pool and main_thread_pool[pool][2]:
                     del main_thread_pool[pool]
                 print("stun id {} -- turn id {} socket timeout".format(stun_id, turn_id))
                 print("===================")
@@ -118,7 +118,7 @@ class stun_turn:
                 data, addr = sockfd.recvfrom(1024)
                 if data.startswith("del "):
                     print("Communication cancel requested!")
-                    pool = data[4:] + str(self.turn_id)
+                    pool = data[4:]
                     if pool in poolqueue:
                         del poolqueue[pool]
                     if pool in symmetric_chat_clients:
