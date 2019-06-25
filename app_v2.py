@@ -118,7 +118,7 @@ class stun_turn:
                 data, addr = sockfd.recvfrom(1024)
                 if data.startswith("del "):
                     print("Communication cancel requested!")
-                    pool = data[4:]
+                    pool = data[4:] + str(self.turn_id)
                     if pool in poolqueue:
                         del poolqueue[pool]
                     if pool in symmetric_chat_clients:
@@ -190,7 +190,7 @@ class stun_turn:
                                     print("Hurray! symmetric chat link established.")
                                     print("======== transfer to turn server =======")
                                     symmetric_chat_clients[pool] = ['0', (self.ip_addr, self.turn_port), True]
-                                    self.turn_id = (self.turn_id + 1) % 150
+                                    self.turn_id = (self.turn_id + 1) % 999
                                     turn_thread.start()
 
                                     # del symmetric_chat_clients[pool]
