@@ -49,6 +49,9 @@ class stun_turn:
         symmetric_chat_clients = {}
         symmetric_chat_clients[address_a] = address_b
         symmetric_chat_clients[address_b] = address_a
+        print("====== pool info in turn ======")
+        print(symmetric_chat_clients)
+        print("====== turn server start ======")
         turn_forwarding = True
         error_msg_counter = 0
         other_msg_counter = 0
