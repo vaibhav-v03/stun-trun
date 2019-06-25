@@ -193,11 +193,9 @@ class stun_turn:
                                     print("======== transfer to turn server =======")
                                     symmetric_chat_clients[pool] = ['0', (self.ip_addr, self.turn_port), True]
                                     self.turn_id = (self.turn_id + 1) % 999
-                                    turn_thread.start()
-
-                                    # del symmetric_chat_clients[pool]
                                     if pool in poolqueue:
                                         del poolqueue[pool]
+                                    turn_thread.start()
                                 else:
                                     print("retry request for the turn server from %s" % device_type)
                                     if device_type == '1':
