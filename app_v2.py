@@ -22,6 +22,7 @@ class stun_turn:
         self.turn_port = turn_port
         self.stun_port = stun_port
         self.index = index
+        self.turn_id = 0
         self.status = status
         self.stun()
 
@@ -45,11 +46,11 @@ class stun_turn:
         bytes += struct.pack("H", nat_type_id)
         return bytes
 
-    def turn(self, socket_turn, address_a, address_b, main_thread_pool, pool):
+    def turn(self, socket_turn, address_a, address_b, main_thread_pool, pool, stun_id, turn_id):
         symmetric_chat_clients = {}
         symmetric_chat_clients[address_a] = address_b
         symmetric_chat_clients[address_b] = address_a
-        print("====== pool info in turn ======")
+        print("stun id {} -- turn id {}".format(stun_id, turn_id))
         print(symmetric_chat_clients)
         print("====== turn server start ======")
         turn_forwarding = True
@@ -135,7 +136,7 @@ class stun_turn:
                         sockfd.sendto("cancel!!", addr)
                         continue
 
-                    print "request received from {} for pool: {}".format(device_type, pool)
+                    print "stun server {} receives request  from {} for pool: {}".format(self.index, device_type, pool)
                     # full cone mode
                     if nat_type_id == '0':
                         try:
@@ -178,11 +179,18 @@ class stun_turn:
                                     sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), recorded_client_addr)
                                     sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
 
-                                    turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr, symmetric_chat_clients, pool))
+                                    turn_thread = Thread(target=self.turn, args=(socket_turn,
+                                                                                 recorded_client_addr,
+                                                                                 addr,
+                                                                                 symmetric_chat_clients,
+                                                                                 pool,
+                                                                                 self.index,
+                                                                                 self.turn_id))
                                     turn_thread.setDaemon(True)
                                     print("Hurray! symmetric chat link established.")
                                     print("======== transfer to turn server =======")
                                     symmetric_chat_clients[pool] = ['0', (self.ip_addr, self.turn_port), True]
+                                    self.turn_id = (self.turn_id + 1) % 150
                                     turn_thread.start()
 
                                     # del symmetric_chat_clients[pool]
