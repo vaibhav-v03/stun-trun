@@ -57,11 +57,11 @@ class stun_turn:
                 socket_turn.settimeout(2.0)
                 data, addr = socket_turn.recvfrom(1024)
             except socket.timeout:
-                print("turn socket timeout")
-                print("===================")
                 socket_turn.close()
                 if pool in main_thread_pool:
                     del main_thread_pool[pool]
+                print("turn socket timeout")
+                print("===================")
                 sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
@@ -86,13 +86,13 @@ class stun_turn:
                             sys.exit()
                         continue
                     socket_turn.sendto("LC Stop\0", addr)
+                    if pool in main_thread_pool:
+                        del main_thread_pool[pool]
                     print("Symmetric call ends, waiting for turn port timeout!")
                     error_msg_counter += 1
                     if error_msg_counter == 10:
                         print("Turn port time out, closing...")
                         socket_turn.close()
-                        if pool in main_thread_pool:
-                            del main_thread_pool[pool]
                         sys.exit()
 
     def stun(self):
@@ -172,8 +172,7 @@ class stun_turn:
                                             self.turn_port = self.stun_port + random.randint(1, 999)
                                             continue
                                     print "listening on turn port *:%d (udp)" % self.turn_port
-                                    sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'),
-                                                  recorded_client_addr)
+                                    sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), recorded_client_addr)
                                     sockfd.sendto(self.addr2bytes((self.ip_addr, self.turn_port), '0'), addr)
 
                                     turn_thread = Thread(target=self.turn, args=(socket_turn, recorded_client_addr, addr, symmetric_chat_clients, pool))
