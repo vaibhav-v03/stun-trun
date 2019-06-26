@@ -49,9 +49,9 @@ class stun_turn:
         return bytes
 
     def turn(self, socket_turn, address_a, address_b, main_thread_pool, pool, stun_id, turn_id):
-        symmetric_chat_clients = {}
-        symmetric_chat_clients[address_a] = address_b
-        symmetric_chat_clients[address_b] = address_a
+        inner_symmetric_chat_clients = {}
+        inner_symmetric_chat_clients[address_a] = address_b
+        inner_symmetric_chat_clients[address_b] = address_a
         print("stun id {} -- turn id {}".format(stun_id, turn_id))
         print(symmetric_chat_clients)
         print("====== turn server start ======")
@@ -71,18 +71,18 @@ class stun_turn:
                 sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
-                if address_a in symmetric_chat_clients:
-                    del symmetric_chat_clients[address_a]
-                if address_b in symmetric_chat_clients:
-                    del symmetric_chat_clients[address_b]
+                if address_a in inner_symmetric_chat_clients:
+                    del inner_symmetric_chat_clients[address_a]
+                if address_b in inner_symmetric_chat_clients:
+                    del inner_symmetric_chat_clients[address_b]
                 if pool in main_thread_pool:
                     del main_thread_pool[pool]
             else:
                 # forward symmetric chat msg, act as TURN server
                 try:
-                    socket_turn.sendto(data, symmetric_chat_clients[addr])
+                    socket_turn.sendto(data, inner_symmetric_chat_clients[addr])
                 except KeyError:
-                    if len(symmetric_chat_clients) != 0:
+                    if len(inner_symmetric_chat_clients) != 0:
                         print("Someone else trying to join the talk, ignore...")
                         if pool in main_thread_pool:
                             del main_thread_pool[pool]
