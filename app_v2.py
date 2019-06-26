@@ -157,7 +157,7 @@ class stun_turn:
                             # pool created ==> device is occupied, decline another app's request
                             if device_type == '2':
                                 print("device occupied")
-                                sockfd.send("occupied", addr)
+                                sockfd.sendto("occupied", addr)
                                 continue
 
                             if nat_type_id != '0' or self.symmetric_chat_clients[pool][0] != '0':
