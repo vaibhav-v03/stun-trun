@@ -83,7 +83,7 @@ class stun_turn:
                     socket_turn.sendto(data, inner_symmetric_chat_clients[addr])
                 except KeyError:
                     if len(inner_symmetric_chat_clients) != 0:
-                        print("Someone else trying to join the talk, ignore...")
+                        print("{} trying to join the talk, ignore...".format(addr))
                         if pool in main_thread_pool:
                             del main_thread_pool[pool]
                         other_msg_counter += 1
