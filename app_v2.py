@@ -53,7 +53,7 @@ class stun_turn:
         inner_symmetric_chat_clients[address_a] = address_b
         inner_symmetric_chat_clients[address_b] = address_a
         print("stun id {} -- turn id {}".format(stun_id, turn_id))
-        print(symmetric_chat_clients)
+        print(inner_symmetric_chat_clients)
         print("====== turn server start ======")
         turn_forwarding = True
         error_msg_counter = 0
