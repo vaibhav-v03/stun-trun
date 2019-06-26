@@ -234,6 +234,6 @@ if __name__ == "__main__":
         for i, stun_port in enumerate(stun_ports):
             if not stun_status[i]:
                 print("status on port %d fails, restarting...." % stun_ports[i], stun_status[i])
-                stun_thread = Thread(target=stun_turn, args=(i, stun_status, stun_ports[i], stun_ports[i] + 1))
+                stun_thread = Thread(target=stun_turn, args=(i, stun_status, stun_ports[i], stun_ports[i] + 1, poolqueue, symmetric_chat_clients))
                 stun_thread.start()
         time.sleep(60)
