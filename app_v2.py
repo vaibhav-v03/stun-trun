@@ -83,13 +83,18 @@ class stun_turn:
                     socket_turn.sendto(data, inner_symmetric_chat_clients[addr])
                 except KeyError:
                     if len(inner_symmetric_chat_clients) != 0:
-                        print("{} trying to join the talk, ignore...".format(addr))
-                        if pool in main_thread_pool:
-                            del main_thread_pool[pool]
-                        other_msg_counter += 1
-                        if other_msg_counter >= 20:
-                            socket_turn.close()
-                            sys.exit()
+                        print("{} trying to join the talk".format(addr))
+                        if addr[0] == address_a[0]:
+                            inner_symmetric_chat_clients[addr] = address_b
+                        elif addr[0] == address_b[0]:
+                            inner_symmetric_chat_clients[addr] = address_a
+                        else:
+                            if pool in main_thread_pool:
+                                del main_thread_pool[pool]
+                            other_msg_counter += 1
+                            if other_msg_counter >= 20:
+                                socket_turn.close()
+                                sys.exit()
                         continue
                     socket_turn.sendto("LC Stop\0", addr)
                     if pool in main_thread_pool:
