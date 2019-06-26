@@ -97,6 +97,7 @@ class stun_turn:
                             if other_msg_counter >= 20:
                                 socket_turn.close()
                                 sys.exit()
+                        print("updated pool info: ".format(inner_symmetric_chat_clients))
                         continue
                     socket_turn.sendto("LC Stop\0", addr)
                     if pool in main_thread_pool:
