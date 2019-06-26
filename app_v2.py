@@ -71,10 +71,7 @@ class stun_turn:
                 sys.exit()
             if data.startswith("LC Stop"):
                 print("Terminate call request received, cleaning pool...")
-                if address_a in inner_symmetric_chat_clients:
-                    del inner_symmetric_chat_clients[address_a]
-                if address_b in inner_symmetric_chat_clients:
-                    del inner_symmetric_chat_clients[address_b]
+                inner_symmetric_chat_clients.clear()
                 if pool in main_thread_pool:
                     del main_thread_pool[pool]
             else:
