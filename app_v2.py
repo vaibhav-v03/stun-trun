@@ -11,7 +11,7 @@ from collections import namedtuple
 
 
 class stun_turn:
-    def __init__(self, index, status, stun_port, turn_port, poolqueue, symmetric_chat_clients):
+    def __init__(self, index, status, stun_port, turn_port, full_cone_pool, symmetric_pool):
         self.FullCone = "Full Cone"  # 0
         self.RestrictNAT = "Restrict NAT"  # 1
         self.RestrictPortNAT = "Restrict Port NAT"  # 2
@@ -24,8 +24,8 @@ class stun_turn:
         self.index = index
         self.turn_id = 0
         self.status = status
-        self.poolqueue = poolqueue
-        self.symmetric_chat_clients = symmetric_chat_clients
+        self.poolqueue = full_cone_pool
+        self.symmetric_chat_clients = symmetric_pool
         self.stun()
 
     def addr2bytes(self, addr, nat_type_id):
@@ -136,6 +136,7 @@ class stun_turn:
                         continue
 
                     print "stun server {} receives request  from {} for pool: {}".format(self.index, device_type, pool)
+                    print("current pool info: pool queue {} - symmetric pool {}".format(self.poolqueue, self.symmetric_chat_clients))
                     # full cone mode
                     if nat_type_id == '0':
                         try:
@@ -144,8 +145,8 @@ class stun_turn:
                             sockfd.sendto(self.addr2bytes(a, nat_type_id_a), b)
                             sockfd.sendto(self.addr2bytes(b, nat_type_id_b), a)
                             print "linked", pool
-                            del poolqueue[pool]
-                            del symmetric_chat_clients[pool]
+                            del self.poolqueue[pool]
+                            del self.symmetric_chat_clients[pool]
                         # KeyError ==> pool not exist yet, initiate one
                         except KeyError:
                             self.poolqueue[pool] = ClientInfo(addr, nat_type_id)
@@ -218,6 +219,7 @@ class stun_turn:
 
 
 if __name__ == "__main__":
+    # global resources
     stun_ports = [7000, 8000, 9000, 10000, 11000, 12000, 13000]
     stun_status = [False, False, False, False, False, False, False]
 
