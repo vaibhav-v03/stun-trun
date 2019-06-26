@@ -86,8 +86,10 @@ class stun_turn:
                         print("{} trying to join the talk".format(addr))
                         if addr[0] == address_a[0]:
                             inner_symmetric_chat_clients[addr] = address_b
+                            inner_symmetric_chat_clients[address_b] = addr
                         elif addr[0] == address_b[0]:
                             inner_symmetric_chat_clients[addr] = address_a
+                            inner_symmetric_chat_clients[address_a] = addr
                         else:
                             if pool in main_thread_pool:
                                 del main_thread_pool[pool]
